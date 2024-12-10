@@ -1,10 +1,17 @@
 package com.example.chatapp_dungpd.model;
-
+import lombok.*;
 import jakarta.persistence.*;
+import jdk.jfr.DataAmount;
+
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "Role")
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@RequiredArgsConstructor
+
 public class Role {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -14,25 +21,10 @@ public class Role {
     private String roleName;
 
     private LocalDateTime createdAt = LocalDateTime.now();
-
-    public Role(Long defaultRoleId) {
-    }
-
-    public Role() {
+    @PrePersist
+    protected void onCreate(){
+        this.createdAt = LocalDateTime.now();
 
     }
 
-    // Getters and Setters
-
-    public Long getRoleId() {
-        return roleId;
-    }
-
-    public String getRoleName() {
-        return roleName;
-    }
-
-    public void setRoleName(String roleName) {
-        this.roleName = roleName;
-    }
 }

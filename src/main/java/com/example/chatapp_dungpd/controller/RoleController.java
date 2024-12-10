@@ -3,18 +3,21 @@ package com.example.chatapp_dungpd.controller;
 import com.example.chatapp_dungpd.exception.ResourceNotFoundException;
 import com.example.chatapp_dungpd.model.Role;
 import com.example.chatapp_dungpd.repository.RoleRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/roles")
+@RequestMapping("/api/v1/roles")
 public class RoleController {
 
-    @Autowired
-    private RoleRepository roleRepository;
+
+    private final RoleRepository roleRepository;
+
+    public RoleController(RoleRepository roleRepository) {
+        this.roleRepository = roleRepository;
+    }
 
     @PostMapping
     public ResponseEntity<Role> createRole(@RequestBody Role role) {

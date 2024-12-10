@@ -1,29 +1,33 @@
 package com.example.chatapp_dungpd.controller;
 
+import com.example.chatapp_dungpd.dto.MessageStatusUpdateRequest;
 import com.example.chatapp_dungpd.model.MessageStatus;
 import com.example.chatapp_dungpd.model.MessageStatusId;
-import com.example.chatapp_dungpd.repository.MessageStatusRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+
+import com.example.chatapp_dungpd.service.MessageStatusService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/message-status")
+@RequestMapping("/api/v1/message-status")
 public class MessageStatusController {
 
-    @Autowired
-    private MessageStatusRepository messageStatusRepository;
+
+    private final MessageStatusService messageStatusService;
+
+    public MessageStatusController(MessageStatusService messageStatusService) {
+        this.messageStatusService = messageStatusService;
+    }
 
     @PostMapping
-    public ResponseEntity<MessageStatus> updateMessageStatus(@RequestBody MessageStatus messageStatus) {
-        MessageStatus updatedStatus = messageStatusRepository.save(messageStatus);
+    public ResponseEntity<MessageStatus> updateMessageStatus(@RequestBody MessageStatusUpdateRequest request) {
+        MessageStatus updatedStatus = messageStatusService.updateMessageStatus(request);
         return ResponseEntity.ok(updatedStatus);
     }
 
     @DeleteMapping("/{messageId}/{statusId}")
     public ResponseEntity<Void> removeMessageStatus(@PathVariable Long messageId, @PathVariable Long statusId) {
-        MessageStatusId id = new MessageStatusId(messageId, statusId);
-        messageStatusRepository.deleteById(id);
+        messageStatusService.removeMessageStatus(messageId, statusId);
         return ResponseEntity.noContent().build();
     }
 }

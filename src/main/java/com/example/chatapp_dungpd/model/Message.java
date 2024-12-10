@@ -1,10 +1,16 @@
 package com.example.chatapp_dungpd.model;
-
+import lombok.*;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "Message")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+
 public class Message {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -22,20 +28,15 @@ public class Message {
     private String content;
 
     private LocalDateTime createdAt = LocalDateTime.now();
-
-    public void setChatroomId(Long chatroomId) {
-    }
-
-    public void setSenderId(Long senderId) {
+    @PrePersist
+    protected void onCreate(){
+        this.createdAt = LocalDateTime.now();
 
     }
 
-    public void setContent(String content) {
-        this.content = content;
-    }
-
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
-// Getters and Setters
+//    Message message = Message.builder()
+//            .chatroom(chatroom)
+//            .sender(user)
+//            .content("Hello World!")
+//            .build();
 }

@@ -3,18 +3,22 @@ package com.example.chatapp_dungpd.controller;
 import com.example.chatapp_dungpd.model.GroupMember;
 import com.example.chatapp_dungpd.model.GroupMemberId;
 import com.example.chatapp_dungpd.repository.GroupMemberRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/group-members")
+@RequestMapping("/api/v1/group-members")
 public class GroupMemberController {
 
-    @Autowired
-    private GroupMemberRepository groupMemberRepository;
+
+    private final GroupMemberRepository groupMemberRepository;
+
+    public GroupMemberController(GroupMemberRepository groupMemberRepository) {
+        this.groupMemberRepository = groupMemberRepository;
+    }
+
 
     @PostMapping
     public ResponseEntity<GroupMember> addGroupMember(@RequestBody GroupMember groupMember) {

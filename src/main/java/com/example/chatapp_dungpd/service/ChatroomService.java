@@ -2,10 +2,13 @@ package com.example.chatapp_dungpd.service;
 
 import com.example.chatapp_dungpd.model.Chatroom;
 import com.example.chatapp_dungpd.model.GroupMember;
+import com.example.chatapp_dungpd.model.Role;
+import com.example.chatapp_dungpd.model.User;
 import com.example.chatapp_dungpd.repository.ChatroomRepository;
 import com.example.chatapp_dungpd.repository.GroupMemberRepository;
 import com.example.chatapp_dungpd.repository.RoleRepository;
 import com.example.chatapp_dungpd.exception.ResourceNotFoundException;
+import com.example.chatapp_dungpd.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,19 +22,26 @@ public class ChatroomService {
     private final ChatroomRepository chatroomRepository;
     private final GroupMemberRepository groupMemberRepository;
     private final RoleRepository roleRepository;
-
-    public ChatroomService(ChatroomRepository chatroomRepository, GroupMemberRepository groupMemberRepository, RoleRepository roleRepository) {
+    private final UserRepository userRepository;
+    public ChatroomService(ChatroomRepository chatroomRepository, GroupMemberRepository groupMemberRepository, RoleRepository roleRepository, UserRepository userRepository) {
         this.chatroomRepository = chatroomRepository;
         this.groupMemberRepository = groupMemberRepository;
         this.roleRepository = roleRepository;
+        this.userRepository = userRepository;
     }
 
-    // Tạo phòng chat nhóm (group chat)
+    // Tạo phòng chat nhóm group chat
     public Chatroom createChatroom(Long userId, String channelName) {
         Chatroom chatroom = new Chatroom();
-        chatroom.setCreatedUserId(userId);
+
+        // Lấy đối tượng User từ userId
+        User user1 = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
+
+        chatroom.setCreatedUser(user1);
         chatroom.setChannelName(channelName);
         chatroom.setIsDirectedChat(false); // Không phải chat trực tiếp
+
         return chatroomRepository.save(chatroom);
     }
 
@@ -48,9 +58,13 @@ public class ChatroomService {
             return existingChatroom.get(); // Sử dụng lại phòng chat cũ
         }
 
+        // Lấy đối tượng User từ userId
+        User user1 = userRepository.findById(userId1)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId1));
+
         // Tạo mới nếu chưa tồn tại
         Chatroom chatroom = new Chatroom();
-        chatroom.setCreatedUserId(userId1);
+        chatroom.setCreatedUser(user1); // Sử dụng đối tượng User thay cho kiểu Long
         chatroom.setIsDirectedChat(true); // Là phòng chat trực tiếp
         Chatroom savedChatroom = chatroomRepository.save(chatroom);
 
@@ -63,24 +77,29 @@ public class ChatroomService {
 
     // Thêm user vào phòng chat
     public GroupMember addUserToChatroom(Long userId, Long chatroomId) {
-        // Gán vai trò mặc định cho user
-        Long defaultRoleId = roleRepository.findByRoleName("MEMBER")
-                .orElseThrow(() -> new ResourceNotFoundException("Default role not found"))
-                .getRoleId();
+        // Fetch the default role
+        Role defaultRole = roleRepository.findByRoleName("MEMBER")
+                .orElseThrow(() -> new ResourceNotFoundException("Default role not found"));
 
-        // Tạo và lưu thành viên phòng chat
-        GroupMember groupMember = new GroupMember(chatroomId, userId, defaultRoleId);
+        // Fetch the chatroom
+        Chatroom chatroom = chatroomRepository.findById(chatroomId)
+                .orElseThrow(() -> new ResourceNotFoundException("Chatroom not found with id: " + chatroomId));
+
+        // Fetch the user
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
+
+        // Create and save the GroupMember object
+        GroupMember groupMember = new GroupMember(chatroom, user, defaultRole);
         return groupMemberRepository.save(groupMember);
     }
 
     // Kiểm tra quyền của người dùng trong phòng
     public boolean isUserAdminOrOwner(Long userId, Long chatroomId) {
         return groupMemberRepository.findByChannelIdAndUserId(chatroomId, userId)
-                .map(groupMember -> {
-                    String roleName = groupMember.getRole().getRoleName(); // Sử dụng getRole() để lấy Role
-                    return "ADMIN".equals(roleName) || "OWNER".equals(roleName);
-                })
-                .orElse(false);
+                .stream() // Chuyển sang Stream
+                .map(groupMember -> groupMember.getRole().getRoleName()) // Lấy roleName
+                .anyMatch(roleName -> "ADMIN".equals(roleName) || "OWNER".equals(roleName)); // Kiểm tra vai trò
     }
 
     // Kiểm tra phòng chat trực tiếp đã tồn tại giữa 2 user chưa

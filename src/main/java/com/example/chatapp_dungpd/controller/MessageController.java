@@ -2,18 +2,21 @@ package com.example.chatapp_dungpd.controller;
 
 import com.example.chatapp_dungpd.model.Message;
 import com.example.chatapp_dungpd.service.MessageService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/messages")
+@RequestMapping("/api/v1/messages")
 public class MessageController {
 
-    @Autowired
-    private MessageService messageService;
+
+    private final MessageService messageService;
+
+    public MessageController(MessageService messageService) {
+        this.messageService = messageService;
+    }
 
     @PostMapping
     public ResponseEntity<Message> createMessage(@RequestBody Message message) {

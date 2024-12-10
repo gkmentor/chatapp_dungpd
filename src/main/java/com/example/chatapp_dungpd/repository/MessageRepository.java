@@ -14,4 +14,6 @@ public interface MessageRepository extends JpaRepository<Message, Long> {
     // Custom query to find messages by chatroomId
     @Query("SELECT m FROM Message m WHERE m.chatroom.chatroomId = :chatroomId")
     List<Message> findByChatroomId(@Param("chatroomId") Long chatroomId);
+
+    Object findUserById(Long senderId);
 }

@@ -1,41 +1,19 @@
 package com.example.chatapp_dungpd.model;
-
+import lombok.*;
 import jakarta.persistence.Embeddable;
 import java.io.Serializable;
 import java.util.Objects;
 
-import jakarta.persistence.Embeddable;
-import java.io.Serializable;
-import java.util.Objects;
+
 
 @Embeddable
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class MessageStatusId implements Serializable {
     private Long messageId;
     private Long statusId;
-
-    public MessageStatusId() {
-    }
-
-    public MessageStatusId(Long messageId, Long statusId) {
-        this.messageId = messageId;
-        this.statusId = statusId;
-    }
-
-    public Long getMessageId() {
-        return messageId;
-    }
-
-    public void setMessageId(Long messageId) {
-        this.messageId = messageId;
-    }
-
-    public Long getStatusId() {
-        return statusId;
-    }
-
-    public void setStatusId(Long statusId) {
-        this.statusId = statusId;
-    }
 
     @Override
     public boolean equals(Object o) {

@@ -2,9 +2,13 @@ package com.example.chatapp_dungpd.model;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
-
+import  lombok.*;
 @Entity
 @Table(name = "User")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,9 +27,16 @@ public class User {
     private LocalDateTime createdAt = LocalDateTime.now();
     private LocalDateTime updatedAt = LocalDateTime.now();
 
-    public Long getUserId() {
-        return userId;
+    @PrePersist
+    protected void onCreate(){
+        this.createdAt = LocalDateTime.now();
+
     }
-    // Getters and Setters
+    @PreUpdate
+    protected void onUpdate(){
+        this.updatedAt = LocalDateTime.now();
+
+    }
+
 }
 

@@ -1,5 +1,5 @@
 package com.example.chatapp_dungpd.model;
-
+import lombok.*;
 import jakarta.persistence.Embeddable;
 import java.io.Serializable;
 
@@ -8,17 +8,14 @@ import java.io.Serializable;
 import java.util.Objects;
 
 @Embeddable
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class GroupMemberId implements Serializable {
     private Long channelId;
     private Long userId;
 
-    // Default constructor, equals, and hashCode
-    public GroupMemberId() {}
-
-    public GroupMemberId(Long channelId, Long userId) {
-        this.channelId = channelId;
-        this.userId = userId;
-    }
 
     @Override
     public boolean equals(Object o) {

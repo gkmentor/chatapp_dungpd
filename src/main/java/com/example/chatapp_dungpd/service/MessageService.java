@@ -1,11 +1,7 @@
 package com.example.chatapp_dungpd.service;
 
-import com.example.chatapp_dungpd.model.Message;
-import com.example.chatapp_dungpd.model.MessageStatus;
-import com.example.chatapp_dungpd.model.MessageStatusId;
-import com.example.chatapp_dungpd.repository.MessageRepository;
-import com.example.chatapp_dungpd.repository.MessageStatusRepository;
-import com.example.chatapp_dungpd.repository.StatusRepository;
+import com.example.chatapp_dungpd.model.*;
+import com.example.chatapp_dungpd.repository.*;
 import com.example.chatapp_dungpd.exception.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,21 +16,34 @@ public class MessageService {
     private final MessageRepository messageRepository;
     private final MessageStatusRepository messageStatusRepository;
     private final StatusRepository statusRepository;
+    private final ChatroomRepository chatroomRepository;
+    private final UserRepository userRepository;
 
     // Constructor
     public MessageService(MessageRepository messageRepository,
                           MessageStatusRepository messageStatusRepository,
-                          StatusRepository statusRepository) {
+                          StatusRepository statusRepository,
+                          ChatroomRepository chatroomRepository,
+                          UserRepository userRepository) {
         this.messageRepository = messageRepository;
         this.messageStatusRepository = messageStatusRepository;
         this.statusRepository = statusRepository;
+        this.chatroomRepository = chatroomRepository;
+        this.userRepository = userRepository;
     }
 
     // Gửi tin nhắn
     public Message sendMessage(Long chatroomId, Long senderId, String content) {
         Message message = new Message();
-        message.setChatroomId(chatroomId);
-        message.setSenderId(senderId);
+
+        Chatroom chatroom = chatroomRepository.findById(chatroomId)
+                        .orElseThrow(() -> new ResourceNotFoundException("Chatroom not found with id" +chatroomId));
+        message.setChatroom(chatroom);
+
+        User sender  = userRepository.findById(senderId)
+                        .orElseThrow(() -> new ResourceNotFoundException("Chatroom not found with id" +senderId));
+        message.setSender(sender);
+
         message.setContent(content);
         message.setCreatedAt(LocalDateTime.now());
         return messageRepository.save(message);
@@ -42,15 +51,16 @@ public class MessageService {
 
     //to create a new message
     public Message createMessage(Message message) {
+        message.setCreatedAt(LocalDateTime.now());
         return messageRepository.save(message);  // Save message to DB and return
     }
 
-    // 2. Method to get messages by chatroomId
+    // get messages by chatroomId
     public List<Message> getMessagesByChatroomId(Long chatroomId) {
         return messageRepository.findByChatroomId(chatroomId);  // Assuming you have a custom query in the repository
     }
 
-    // 3. Method to delete a message by ID
+    // delete a message by ID
     public void deleteMessage(Long id) {
         if (messageRepository.existsById(id)) {
             messageRepository.deleteById(id);  // Delete message by ID
@@ -64,7 +74,7 @@ public class MessageService {
         return messageRepository.findByChatroomIdAndCreatedAtBetween(chatroomId, from, to);
     }
 
-    // Cập nhật trạng thái tin nhắn (đã đọc, chưa đọc, v.v.)
+    // Cập nhật trạng thái tin nhắn đã đọc, chưa đọc, v.v.
     public MessageStatus updateMessageStatus(Long messageId, Long statusId) {
         if (!messageRepository.existsById(messageId)) {
             throw new ResourceNotFoundException("Message not found with id: " + messageId);
