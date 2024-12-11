@@ -1,46 +1,44 @@
 package com.example.chatapp_dungpd.model;
 import lombok.*;
 import jakarta.persistence.*;
+
+import java.io.Serializable;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "Message_Status")
+
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Table(name = "Message_status", indexes = {
+        @Index(name = "idx_message_id", columnList = "messageId"),
+        @Index(name = "idx_status_id", columnList = "statusId")
+})
+
 public class MessageStatus {
-    @EmbeddedId
-    private MessageStatusId id;
+    @Id
+    @Column(nullable = false)
+    private Long messageId;
 
-    @ManyToOne
-    @MapsId("messageId")
-    @JoinColumn(name = "message_id")
-    private Message message;
+    @Id
+    @Column(nullable = false)
+    private Long statusId;
 
-    @ManyToOne
-    @MapsId("statusId")
-    @JoinColumn(name = "status_id")
-    private Status status;
+    @Column(name = "created_at", nullable = false)
+    private LocalDateTime createdAt;
 
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
 
+    @PrePersist
+    protected void onCreate() {
+        this.createdAt = LocalDateTime.now();
+    }
+
     @PreUpdate
-    protected void onUpdate(){
-        this.updatedAt = LocalDateTime.now();
-
-    }
-
-    public MessageStatus(Long messageId, Long statusId) {
-        this.id = new MessageStatusId(messageId, statusId);
-        this.updatedAt = LocalDateTime.now();
-    }
-    public MessageStatus(Message message, Status status) {
-        this.message = message;
-        this.status = status;
-        this.id = new MessageStatusId(message.getMessageId(), status.getStatusId());
+    protected void onUpdate() {
         this.updatedAt = LocalDateTime.now();
     }
 }

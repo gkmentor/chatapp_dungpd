@@ -2,7 +2,6 @@ package com.example.chatapp_dungpd.controller;
 
 import com.example.chatapp_dungpd.dto.MessageStatusUpdateRequest;
 import com.example.chatapp_dungpd.model.MessageStatus;
-import com.example.chatapp_dungpd.model.MessageStatusId;
 
 import com.example.chatapp_dungpd.service.MessageStatusService;
 import org.springframework.http.ResponseEntity;

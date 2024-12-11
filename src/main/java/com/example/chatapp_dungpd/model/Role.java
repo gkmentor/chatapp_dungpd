@@ -17,14 +17,18 @@ public class Role {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long roleId;
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private String roleName;
 
+    @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
     @PrePersist
     protected void onCreate(){
         this.createdAt = LocalDateTime.now();
 
     }
-
+    public enum RoleName {
+        ADMIN, OWNER, MEMBER
+    }
 }
